@@ -5,6 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from concurrent import futures
+from requests_html import HTMLSession
 import time
 
 
@@ -32,7 +33,7 @@ def info_crypto(address):
         f = e[1:].replace(",","")
         g = c[1:].replace(",","")
         h = d.replace(",","")
-        if address not in check_esistenza and int(f) < 1000001 and int(g)> 10000 and int(h) > 1000000000:
+        if address not in check_esistenza and int(f) < 100001 and int(g)> 10000: #and int(h) > 1000000000:
             cryptos.append((a, b, e, d, c, address))
         if address not in check_esistenza:
             check_esistenza.add(address)
@@ -62,7 +63,12 @@ def find_gems_bscscan():
         b = driver.find_element(By.XPATH, '''//*[@id="content"]/div[2]/div/div/div[2]/table/tbody/tr[''' + str(e) + ''']/td[9]/a/img''').get_attribute("src")
         c = driver.find_element(By.XPATH, '''//*[@id="content"]/div[2]/div/div/div[2]/table/tbody/tr[''' + str(e) + ''']/td[9]/a''').get_attribute("href").split("/")[-1]
         if b == "https://bscscan.com/images/main/empty-token.png" and c not in links and c not in check_esistenza:
-            links.append(c)
+            sessionee = HTMLSession()
+            rar = sessionee.get("https://api.pancakeswap.info/api/v2/tokens/" + c)
+            if "Invalid address" in rar.text or "Not found" in rar.text or '''","price":"0","price_BNB":"''' in rar.text:
+                check_esistenza.add(c)
+            else:
+                links.append(c)
     driver.quit()
 
 
