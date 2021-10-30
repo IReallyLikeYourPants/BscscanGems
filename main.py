@@ -51,25 +51,18 @@ def info_crypto(address):
 
 
 def find_gems_bscscan():
-    driver = webdriver.Chrome()
-    driver.set_window_position(-10000,0)
-    driver.get("https://bscscan.com/tokentxns")
-    timeout = 8000
-    element_present1 = EC.presence_of_element_located((By.XPATH, '''//*[@id="content"]/div[2]/div/div/div[2]/table/tbody/tr[49]/td[9]/a/img'''))
-    element_present2 = EC.presence_of_element_located((By.XPATH, '''//*[@id="content"]/div[2]/div/div/div[2]/table/tbody/tr[49]/td[9]/a'''))
-    WebDriverWait(driver, timeout).until(element_present1)
-    WebDriverWait(driver, timeout).until(element_present2)
+    prova = HTMLSession()
+    ma = prova.get("https://bscscan.com/tokentxns")
     for e in range(1 , 51):
-        b = driver.find_element(By.XPATH, '''//*[@id="content"]/div[2]/div/div/div[2]/table/tbody/tr[''' + str(e) + ''']/td[9]/a/img''').get_attribute("src")
-        c = driver.find_element(By.XPATH, '''//*[@id="content"]/div[2]/div/div/div[2]/table/tbody/tr[''' + str(e) + ''']/td[9]/a''').get_attribute("href").split("/")[-1]
-        if b == "https://bscscan.com/images/main/empty-token.png" and c not in links and c not in check_esistenza:
+        b = ma.html.xpath('''//*[@id="content"]/div[2]/div/div/div[2]/table/tbody/tr['''+ str(e)  + ''']/td[9]/a/img''')[0].attrs["src"]
+        c = ma.html.xpath('''//*[@id="content"]/div[2]/div/div/div[2]/table/tbody/tr['''+ str(e)  + ''']/td[9]/a''')[0].attrs["href"].split("/")[-1]
+        if b == "/images/main/empty-token.png" and c not in links and c not in check_esistenza:
             sessionee = HTMLSession()
             rar = sessionee.get("https://api.pancakeswap.info/api/v2/tokens/" + c)
             if "Invalid address" in rar.text or "Not found" in rar.text or '''","price":"0","price_BNB":"''' in rar.text:
                 check_esistenza.add(c)
             else:
                 links.append(c)
-    driver.quit()
 
 
 val = 1
